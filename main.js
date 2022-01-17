@@ -192,6 +192,26 @@ client.on('interactionCreate', async (interaction) => {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+const verifyUserDataWithBlocto = (user) => {
+  setEnvironment('mainnet')
+  // Validate the user
+  let accountProofObject = user.services.filter((service) => service.type === 'account-proof')[0]
+  if (!accountProofObject) return res.send('ERROR')
+
+  const AccountProof = accountProofObject.data
+  const Address = AccountProof.address
+  const Timestamp = AccountProof.timestamp
+  console.log(Address)
+  console.log(Timestamp)
+  const Message = fcl.WalletUtils.encodeMessageForProvableAuthnVerifying(
+    Address, // Address of the user authenticating
+    Timestamp, // Timestamp associated with the authentication
+    'APP-V0.0-user', // Application domain tag
+  )
+  const isValid = await fcl.verifyUserSignatures(Message, AccountProof.signatures)
+  return isValid
+}
+
 app.post('/api/join', async (req, res) => {
   // Let's ensure that the account proof is legit.
   console.log('Account address:', req.body.user.addr)
@@ -244,25 +264,11 @@ app.post('/api/join', async (req, res) => {
 })
 
 app.post('/api/sign', async (req, res) => {
-  const { id, user, signable } = req.body
+  const { id, user } = req.body
   setEnvironment('mainnet')
 
-  // Validate the user
-  let accountProofObject = user.services.filter((service) => service.type === 'account-proof')[0]
-  if (!accountProofObject) return res.send('ERROR')
-
-  const AccountProof = accountProofObject.data
-  const Address = AccountProof.address
-  const Timestamp = AccountProof.timestamp
-  console.log(Address)
-  console.log(Timestamp)
-  const Message = fcl.WalletUtils.encodeMessageForProvableAuthnVerifying(
-    Address, // Address of the user authenticating
-    Timestamp, // Timestamp associated with the authentication
-    'APP-V0.0-user', // Application domain tag
-  )
-  const isValid = await fcl.verifyUserSignatures(Message, AccountProof.signatures)
-
+  // validate user data with blocto
+  const isValid = verifyUserDataWithBlocto(user)
   if (!isValid) return res.send('ERROR')
 
   // User is now validated //
@@ -299,6 +305,7 @@ app.post('/api/sign', async (req, res) => {
 })
 
 app.get('/api/getAccount', async (req, res) => {
+  // todo: support multi key and defualt key both
   let keyIndex = 0
   res.json({
     address: process.env.ADDRESS,
@@ -307,6 +314,7 @@ app.get('/api/getAccount', async (req, res) => {
 })
 
 app.get('/api/getScript/:scriptName', async (req, res) => {
+  // only support the script with server sign and verify with signWithVerify api
   const { scriptName } = req.params
   const scriptCode = trxScripts[scriptName]()
   if (scriptName && scriptCode) {
@@ -322,25 +330,12 @@ app.get('/api/getScript/:scriptName', async (req, res) => {
 
 app.post('/api/signWithVerify', async (req, res) => {
   const { user, signable, scriptName } = req.body
+  // get the script that verify the sign cadence code
   const scriptCode = trxScripts[scriptName]()
-  setEnvironment('mainnet')
-  // Validate the user
-  let accountProofObject = user.services.filter((service) => service.type === 'account-proof')[0]
-  if (!accountProofObject) return res.send('ERROR')
 
-  const AccountProof = accountProofObject.data
-  const Address = AccountProof.address
-  const Timestamp = AccountProof.timestamp
-  console.log(Address)
-  console.log(Timestamp)
-  const Message = fcl.WalletUtils.encodeMessageForProvableAuthnVerifying(
-    Address, // Address of the user authenticating
-    Timestamp, // Timestamp associated with the authentication
-    'APP-V0.0-user', // Application domain tag
-  )
-  // const isValid = await fcl.verifyUserSignatures(Message, AccountProof.signatures)
-
-  // if (!isValid) return res.send('ERROR')
+  // validate user data with blocto
+  const isValid = verifyUserDataWithBlocto(user)
+  if (!isValid) return res.send('ERROR')
 
   // User is now validated //
 
@@ -349,10 +344,11 @@ app.post('/api/signWithVerify', async (req, res) => {
   const { voucher = {}, message } = signable
   const { cadence = '' } = voucher
   if (scriptCode == cadence) {
+    // when the code match , will sign the transaction
     const signature = sign(message)
     res.json({ signature })
   } else {
-    res.status(500).json({ message: 'Script code invalid' })
+    res.status(500).json({ message: 'Script code not supported' })
   }
 })
 
