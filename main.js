@@ -196,7 +196,7 @@ const verifyUserDataWithBlocto = (user) => {
   setEnvironment('mainnet')
   // Validate the user
   let accountProofObject = user.services.filter((service) => service.type === 'account-proof')[0]
-  if (!accountProofObject) return res.send('ERROR')
+  if (!accountProofObject) return false
 
   const AccountProof = accountProofObject.data
   const Address = AccountProof.address
@@ -269,7 +269,7 @@ app.post('/api/sign', async (req, res) => {
 
   // validate user data with blocto
   const isValid = verifyUserDataWithBlocto(user)
-  if (!isValid) return res.send('ERROR')
+  if (!isValid) return res.status(500).json({ mesage: 'User data validate failed' })
 
   // User is now validated //
 
@@ -335,7 +335,7 @@ app.post('/api/signWithVerify', async (req, res) => {
 
   // validate user data with blocto
   const isValid = verifyUserDataWithBlocto(user)
-  if (!isValid) return res.send('ERROR')
+  if (!isValid) return res.status(500).json({ mesage: 'User data validate failed' })
 
   // User is now validated //
 
