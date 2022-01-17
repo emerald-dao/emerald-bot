@@ -192,7 +192,7 @@ client.on('interactionCreate', async (interaction) => {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const verifyUserDataWithBlocto = (user) => {
+const verifyUserDataWithBlocto = async (user) => {
   setEnvironment('mainnet')
   // Validate the user
   let accountProofObject = user.services.filter((service) => service.type === 'account-proof')[0]
@@ -268,7 +268,7 @@ app.post('/api/sign', async (req, res) => {
   setEnvironment('mainnet')
 
   // validate user data with blocto
-  const isValid = verifyUserDataWithBlocto(user)
+  const isValid = await verifyUserDataWithBlocto(user)
   if (!isValid) return res.status(500).json({ mesage: 'User data validate failed' })
 
   // User is now validated //
@@ -334,7 +334,7 @@ app.post('/api/signWithVerify', async (req, res) => {
   const scriptCode = trxScripts[scriptName]()
 
   // validate user data with blocto
-  const isValid = verifyUserDataWithBlocto(user)
+  const isValid = await verifyUserDataWithBlocto(user)
   if (!isValid) return res.status(500).json({ mesage: 'User data validate failed' })
 
   // User is now validated //
