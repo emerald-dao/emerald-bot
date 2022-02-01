@@ -1,0 +1,33 @@
+{
+	"emulators": {
+		"default": {
+			"port": 3569,
+			"serviceAccount": "emulator-account"
+		}
+	},
+	"contracts": {
+		"EmeraldIdentity": "./contracts/EmeraldIdentity.cdc"
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": "d2a0fb7ce4c725eefe209b427a5bf3b57aeadbf66b236dde6c426b2254ab9d2e"
+		},
+		"mainnet-emeralddao" : {
+			"key" : "${MAINNET_EMERALDDAO}",
+			"address" : "0x39e42c67cc851cfb"
+		}
+	},
+	"deployments": {
+		"mainnet" : {
+			"mainnet-emeralddao" : [
+				"EmeraldIdentity"
+			]
+		}
+	}
+}
