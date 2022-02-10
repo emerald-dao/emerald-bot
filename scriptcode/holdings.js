@@ -356,6 +356,32 @@ const flovatarStarbattleCode = (guildInfo) => {
     `;
 }
 
+const dropchasePartnerCode = (guildInfo) => {
+    return `
+        import Dropchase from 0x328670be4971a064
+
+            pub fun main(account: Address): Int {
+                let acct = getAccount(account)
+                var partnernum: Int = 0
+                let collectionRef = acct.getCapability(/public/DropchaseItemCollection).borrow<&{Dropchase.ItemCollectionPublic}>()!
+                let allIds = collectionRef.getIDs()
+    
+                var a: Int = 0
+                while a < allIds.length {
+                    let token = collectionRef.borrowItem(id: allIds[a])  
+                    ?? panic("Could not borrow a reference to the specified item")   
+                    let data = token.data
+                    let metadata = Dropchase.getStatMetaDataByField(statID: data.statID, field: "Partner") 
+                    if (metadata == "true") {
+                        partnernum = partnernum + 1
+                    }
+                    a = a + 1
+                }
+                return partnernum
+            }
+    `
+}
+
 const holdingScripts = {
     nft: nftCode,
     ft: ftCode,
