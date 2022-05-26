@@ -3,14 +3,17 @@ const t = require('@onflow/types');
 
 const checkEmeraldID = async (discordID) => {
   try {
-    const accountResponse = await fcl.send([
+    const emeraldIds = await fcl.send([
       fcl.script(scriptCode1),
       fcl.args([
         fcl.arg(discordID, t.String)
       ])
     ]).then(fcl.decode);
   
-    return accountResponse;
+    if (Object.keys(emeraldIds).length === 0) {
+      return null;
+    }
+    return emeraldIds;
   } catch(e) {
     return null;
   }
@@ -48,17 +51,18 @@ const checkEmeraldIDBatch = async (discordIDs) => {
 
 const scriptCode1 = `
 import EmeraldIdentity from 0xEmeraldIdentity
+import EmeraldIdentityDapper from 0xEmeraldIdentity
 
-pub fun main(discordID: String): Address? {
-  return EmeraldIdentity.getAccountFromDiscord(discordID: discordID)
-}
-`;
+pub fun main(discordID: String): {String: Address} {
+  var ids: {String: Address} = {}
+  if let bloctoId = EmeraldIdentity.getAccountFromDiscord(discordID: discordID) {
+    ids["blocto"] = bloctoId
+  }
+  if let dapperId = EmeraldIdentityDapper.getAccountFromDiscord(discordID: discordID) {
+    ids["dapper"] = dapperId
+  }
 
-const scriptCode3 = `
-import EmeraldIdentity from 0xEmeraldIdentity
-
-pub fun main(account: Address): String? {
-  return EmeraldIdentity.getDiscordFromAccount(account: account)
+  return ids
 }
 `;
 
@@ -71,6 +75,14 @@ pub fun main(discordIDs: [String]): {String: Address?} {
     answer[discordID] = EmeraldIdentity.getAccountFromDiscord(discordID: discordID)
   }
   return answer
+}
+`;
+
+const scriptCode3 = `
+import EmeraldIdentity from 0xEmeraldIdentity
+
+pub fun main(account: Address): String? {
+  return EmeraldIdentity.getDiscordFromAccount(account: account)
 }
 `;
 

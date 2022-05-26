@@ -341,17 +341,15 @@ client.on('interactionCreate', async interaction => {
         await interaction.deferReply({ ephemeral: true });
 
         // Check the interactor's EmeraldID (null if they don't have one)
-        const account = await checkEmeraldID(interaction.member.id);
-        console.log("EmeraldID", account);
-        if (!account) {
+        const emeraldIds = await checkEmeraldID(interaction.member.id);
+        console.log("EmeraldID", emeraldIds);
+        if (!emeraldIds) {
             client.commands.get('initializeEmeraldID')?.execute(interaction);
             return;
         }
-        console.log('Interaction', interaction.customId);
-        
-        let customIdArray = interaction.customId.replaceAll(" - ", " : ").split('-').concat(account);
+        let customIdArray = interaction.customId.replaceAll(" - ", " : ").split('-');
         const commandName = customIdArray.shift();
-        client.commands.get(commandName)?.execute(interaction, customIdArray);
+        client.commands.get(commandName)?.execute(interaction, customIdArray, emeraldIds);
     } else if (interaction.isCommand()) {
         const { commandName, options } = interaction;
         client.commands.get(commandName)?.execute(interaction, options);

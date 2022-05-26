@@ -1,6 +1,6 @@
 const { checkOwnsFloatFromGroup, checkOwnsAllFloatsFromGroup } = require('../flow/scripts/checkOwnsFloatFromGroup.js');
 
-const execute = async (interaction, options) => {
+const execute = async (interaction, options, emeraldID) => {
   const creator = options[0];
   const groupName = options[1].replaceAll(" : ", " - ");
   const roleId = options[2];

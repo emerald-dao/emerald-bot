@@ -1,13 +1,12 @@
 const { checkOwnsFT } = require('../flow/scripts/checkOwnsFT.js');
 
-const execute = async (interaction, options) => {
+const execute = async (interaction, options, emeraldIds) => {
     const contractName = options[0];
     const contractAddress = options[1];
     const publicPath = options[2];
     const amount = options[3];
     const roleId = options[4];
-    const user = options[5];
-    const ownsFT = await checkOwnsFT(contractName, contractAddress, publicPath, amount, user);
+    const ownsFT = await checkOwnsFT(contractName, contractAddress, publicPath, amount, emeraldIds.values);
     if (ownsFT === true) {
         interaction.member.roles.add(roleId).catch((e) => console.log(e));
         await interaction.editReply({ content: "You have been given the " + `<@&${roleId}>` + " role.", ephemeral: true });

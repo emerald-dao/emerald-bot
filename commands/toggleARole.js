@@ -1,4 +1,4 @@
-const execute = async (interaction, options) => {
+const execute = async (interaction, options, emeraldID) => {
   const roleId = options[0];
   const onOrOff = options[1];
 

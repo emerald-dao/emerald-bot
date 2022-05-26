@@ -1,6 +1,6 @@
 const { checkOwnsFloat } = require('../flow/scripts/checkOwnsFloat.js');
 
-const execute = async (interaction, options) => {
+const execute = async (interaction, options, emeraldID) => {
     const eventId = options[0];
     const roleId = options[1];
     const user = options[2];

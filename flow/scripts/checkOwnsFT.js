@@ -1,23 +1,26 @@
 const fcl = require('@onflow/fcl');
 const t = require('@onflow/types');
 
-const checkOwnsFT = async (contractName, contractAddress, publicPath, amount, user) => {
+const checkOwnsFT = async (contractName, contractAddress, publicPath, amount, emeraldIds) => {
   const fixedAmount = parseFloat(amount).toFixed(2);
   const scriptCode = `
   import FungibleToken from 0xf233dcee88fe0abe
   import ${contractName} from ${contractAddress}
-  pub fun main(address: Address): Bool {
-      if let vault = getAccount(address).getCapability(/public/${publicPath}).borrow<&${contractName}.Vault{FungibleToken.Balance}>() {
-          return vault.balance >= ${fixedAmount}
-      } else {
+  pub fun main(emeraldIds: [Address], fixedAmount: UFix64): Bool {
+      var trackedBalance = 0.0
+      for address in emeraldIds {
+        if let vault = getAccount(address).getCapability(/public/${publicPath}).borrow<&${contractName}.Vault{FungibleToken.Balance}>() {
+          trackedBalance = trackedBalance + vault.balance
+        } else {
           if let vaultPublic = getAccount(address).getCapability(/public/${publicPath}).borrow<&{FungibleToken.Balance}>() {
               if vaultPublic.getType().identifier == "A.${contractAddress.slice(2)}.${contractName}.Vault" {
-                  return vaultPublic.balance >= ${fixedAmount}
+                trackedBalance = trackedBalance + vaultPublic.balance
               }
           }
+        }
       }
 
-      return false
+      return trackedBalance >= fixedAmount
   }
   `;
 
@@ -25,7 +28,8 @@ const checkOwnsFT = async (contractName, contractAddress, publicPath, amount, us
     const result = await fcl.send([
       fcl.script(scriptCode),
       fcl.args([
-        fcl.arg(user, t.Address),
+        fcl.arg(emeraldIds, t.Address),
+        fcl.arg(fixedAmount, t.UFix64)
       ])
     ]).then(fcl.decode);
     return result;
