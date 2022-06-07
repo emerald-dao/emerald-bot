@@ -27,7 +27,7 @@ const verifyCustomButton = async (interaction, customName, roleId) => {
                 .setStyle('SUCCESS'),
             new MessageButton()
                 .setURL('https://id.ecdao.org/')
-                .setLabel('Reset')
+                .setLabel('Manage EmeraldID')
                 .setStyle('LINK')
         );
 

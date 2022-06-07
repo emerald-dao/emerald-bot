@@ -22,7 +22,7 @@ const verifyFloatButton = async (interaction, eventId, roleId) => {
                 .setStyle('SUCCESS'),
             new MessageButton()
                 .setURL('https://id.ecdao.org/')
-                .setLabel('Reset')
+                .setLabel('Manage EmeraldID')
                 .setStyle('LINK')
         );
 

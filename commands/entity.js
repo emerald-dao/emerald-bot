@@ -22,7 +22,7 @@ const verifyEntity = async (interaction, name) => {
                 .setStyle('SUCCESS'),
             new MessageButton()
                 .setURL('https://id.ecdao.org/')
-                .setLabel('Reset')
+                .setLabel('Manage EmeraldID')
                 .setStyle('LINK')
         );
 

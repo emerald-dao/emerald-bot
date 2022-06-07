@@ -24,7 +24,7 @@ const verifyNFTButton = async (interaction, contractName, contractAddress, publi
                 .setStyle('SUCCESS'),
             new MessageButton()
                 .setURL('https://id.ecdao.org/')
-                .setLabel('Reset')
+                .setLabel('Manage EmeraldID')
                 .setStyle('LINK')
         );
 
